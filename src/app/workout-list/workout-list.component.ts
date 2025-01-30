@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { WorkoutService } from '../services/workout.service';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Chart, registerables } from 'chart.js';
 import { Workout } from '../models/workout.model';
+import { WorkoutService } from '../services/workout.service';
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-workout-list',
@@ -8,6 +10,10 @@ import { Workout } from '../models/workout.model';
   styleUrls: ['./workout-list.component.css']
 })
 export class WorkoutListComponent implements OnInit {
+  @ViewChild('workoutChart') workoutChart!: ElementRef;
+  selectedWorkout: Workout | null = null;
+  chart: Chart | null = null;
+
   workouts: Workout[] = [];
   filteredWorkouts: Workout[] = [];
   searchTerm = '';
@@ -18,9 +24,15 @@ export class WorkoutListComponent implements OnInit {
 
   constructor(private workoutService: WorkoutService) {}
 
+  firstWorkout: Workout | null = null;
+
   ngOnInit() {
     this.workoutService.getWorkouts().subscribe(workouts => {
       this.workouts = workouts;
+      if (workouts.length > 0) {
+        this.firstWorkout = workouts[0];
+        this.showWorkoutGraph(this.firstWorkout);
+      }
       this.applyFilters();
     });
   }
@@ -55,5 +67,60 @@ export class WorkoutListComponent implements OnInit {
       'Strength': 'bg-red-100 text-red-800'
     };
     return colors[type] || 'bg-gray-100 text-gray-800';
+  }
+
+  showWorkoutGraph(workout: Workout) {
+    this.selectedWorkout = workout;
+    setTimeout(() => {
+      this.createChart();
+    });
+  }
+
+  createChart() {
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
+    if (!this.selectedWorkout || !this.workoutChart) {
+      return;
+    }
+
+    const ctx = this.workoutChart.nativeElement.getContext('2d');
+
+    // Prepare data for the chart
+    const labels = this.selectedWorkout.workouts.map(w => w.type);
+    const data = this.selectedWorkout.workouts.map(w => w.minutes);
+
+    this.chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Minutes',
+          data: data,
+          backgroundColor: 'rgba(59, 130, 246, 0.5)', // blue-500 with opacity
+          borderColor: 'rgb(59, 130, 246)', // blue-500
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Minutes'
+            }
+          }
+        },
+        plugins: {
+          title: {
+            display: false
+          }
+        }
+      }
+    });
   }
 }
