@@ -1,0 +1,57 @@
+<div class="max-w-xl mx-auto bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg p-8 mb-10">
+  <h2 class="text-3xl font-extrabold text-gray-800 mb-8 text-center">🏋️ Add New Workout</h2>
+  <form [formGroup]="workoutForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    <div class="w-full">
+      <label class="block text-sm font-semibold text-gray-600 mb-2">User Name</label>
+      <input type="text" formControlName="userName"
+             class="w-full p-2 rounded-xl border border-gray-300 focus:ring-4 focus:ring-indigo-400 focus:outline-none transition-all shadow-sm">
+      <div *ngIf="workoutForm.get('userName')?.invalid && workoutForm.get('userName')?.touched"
+           class="text-red-600 text-sm mt-2">
+        Name is required
+      </div>
+    </div>
+
+    <div class="flex justify-between gap-4">
+
+
+
+      <div class="w-full">
+        <label class="block text-sm font-semibold text-gray-600 mb-2">Workout Type</label>
+        <select formControlName="type"
+                class="w-full p-2.5 rounded-xl border border-gray-300 focus:ring-4 focus:ring-indigo-400 focus:outline-none transition-all shadow-sm">
+          <option value="">Select Type</option>
+          <option value="Running">Running</option>
+          <option value="Cycling">Cycling</option>
+          <option value="Swimming">Swimming</option>
+          <option value="Weight Training">Weight Training</option>
+        </select>
+        <div *ngIf="workoutForm.get('type')?.invalid && workoutForm.get('type')?.touched"
+             class="text-red-600 text-sm mt-2">
+          Type is required
+        </div>
+      </div>
+
+      <div class="w-full">
+        <label class="block text-sm font-semibold text-gray-600 mb-2">Minutes</label>
+        <input type="number" formControlName="minutes"
+               class="w-full p-2 rounded-xl border border-gray-300 focus:ring-4 focus:ring-indigo-400 focus:outline-none transition-all shadow-sm">
+        <div *ngIf="workoutForm.get('minutes')?.errors?.['required'] && workoutForm.get('minutes')?.touched"
+             class="text-red-600 text-sm mt-2">
+          Minutes is required
+        </div>
+        <div *ngIf="workoutForm.get('minutes')?.errors?.['min']"
+             class="text-red-600 text-sm mt-2">
+          Minimum 1 minute
+        </div>
+      </div>
+
+    </div>
+
+
+
+    <button type="submit" [disabled]="!workoutForm.valid"
+            class="w-full bg-indigo-600 text-white py-3 px-6 rounded-xl font-semibold shadow-md hover:bg-indigo-700 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed">
+      ➕ Add Workout
+    </button>
+  </form>
+</div>
